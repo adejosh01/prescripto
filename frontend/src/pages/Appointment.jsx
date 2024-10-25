@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom"
 import { AppContext } from "../context/AppContext"
 import { useContext, useEffect, useState } from "react"
 import { assets } from "../assets/assets_frontend/assets"
+import RelatedDoctors from "../components/RelatedDoctors"
 
 
 const Appointment = () => {
@@ -26,14 +27,14 @@ const Appointment = () => {
 
       let today = new Date()
 
-      for (let i=0; i < 7; i++) { 
+      for (let i = 0; i < 7; i++) { 
         // getting date with index
         let currentDate = new Date(today)
         currentDate.setDate(today.getDate()+i)
 
         // setting end time of the date with index
         let endTime = new Date()
-        endTime.setDate(today.getDate() + i)
+        endTime.setDate(today.getDate() + 7)
         endTime.setHours(21,0,0,0)
 
         //setting hours
@@ -108,17 +109,31 @@ const Appointment = () => {
       {/*****  Booking Slots ------ */}
       <div className="sm:ml-72 sm:pl-4 mt-4 font-medium text-gray-700">
         <p>Booking slots</p>
-        <div>
+        <div className="flex gap-3 items-center w-full overflow-x-scroll mt-4 ">
           {
             docSlots.length && docSlots.map((item, index)=> (
-              <div key={index}>
+              <div onClick={() => setSlotIndex(index)} className={`text-center py-6 min-w-16 rounded-full cursor-pointer ${slotIndex === index ? 'bg-primary text-white ': 'border border-gray-200'}`} key={index}>
                 <p>{item[0] && daysOfWeek[item[0].datetime.getDay()]}</p>
                 <p>{item[0] && item[0].datetime.getDate()}</p>
               </div>
             ))
           }
         </div>
+
+        <div className="flex items-center gap-3 w-full overflow-x-scroll mt-4">
+          {docSlots.length && docSlots[slotIndex].map((item, index) => (
+            <p onClick={() => setSlotTime(item.time)} className={`text-sm font-light flex-shrink-0 px-5 py-2 rounded-full cursor-pointer ${item.time === slotTime ? 'bg-primary text-white' : 'border text-gray-400 border-gray-300'}`} key={index}>
+              {item.time.toLowerCase()}
+            </p>
+          ))}
+
+        </div>
+        <button className="bg-primary text-white text-sm font-light px-14 py-3 rounded-full my-6 ">Book an appointment</button>
       </div>
+
+
+      {/****** Listing Related Doctors */}
+      <RelatedDoctors docId={docId} speciality={docInfo.speciality} />
 
     </div>
   )
