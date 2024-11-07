@@ -9,7 +9,7 @@ import {Routes, Route} from 'react-router-dom'
 import Dashboard from "./pages/Admin/Dashboard";
 import AllAppointments from "./pages/Admin/AllAppointments";
 import AddDoctor from "./pages/Admin/AddDoctor";
-import DoctorsList from "./pages/Admin/DoctorsList";
+import DoctorsList from "./pages/Admin/DoctorsList"
 
 
 const App = () => {

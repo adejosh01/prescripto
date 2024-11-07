@@ -1,7 +1,8 @@
 import express from 'express'
 import multer from 'multer';
-import { addDoctor, loginAdmin } from '../controllers/adminController.js'
+import { addDoctor, allDoctors, loginAdmin } from '../controllers/adminController.js'
 import authAdmin from '../middlewares/authAdmin.js'
+import { changeAvailabity } from '../controllers/doctorController.js';
 
 
 const adminRouter = express.Router()
@@ -11,5 +12,9 @@ const upload = multer({ dest: 'uploads/' }).single('image'); // Use the correct 
 
 adminRouter.post('/add-doctor', authAdmin, upload, addDoctor)
 adminRouter.post('/login', loginAdmin)
+adminRouter.post('/all-doctors', authAdmin, allDoctors)
+adminRouter.post('/change-availability', authAdmin, changeAvailabity)
+
+
 
 export default adminRouter
