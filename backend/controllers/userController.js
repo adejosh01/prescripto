@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken'
 import {v2 as cloudinary} from 'cloudinary'
 import appointmentModel from '../models/appointmentModel.js'
 import doctorModel from '../models/doctorModel.js'
+import razorpay from 'razorpay'
 
 
 
@@ -197,14 +198,14 @@ const cancelAppointment = async(req, res) => {
 
         //releasing doctor list
 
-        const {docId, slotDate, slotTime} = appointmentData
-        const doctorData = await doctorModel.findById(docId)
+        // const {docId, slotDate, slotTime} = appointmentData
+        // const doctorData = await doctorModel.findById(docId)
 
-        let slots_booked = doctorData.slots_booked
+        // let slots_booked = doctorData.slots_booked
 
-        slots_booked[slotDate] = slot_booked[slotDate].filter(e => e !== slotTime)
+        // slots_booked[slotDate] = slot_booked[slotDate].filter(e => e !== slotTime)
 
-        await doctorModel.findByIdAndUpdate(docId, {slot_booked})
+        // await doctorModel.findByIdAndUpdate(docId, {slot_booked})
 
         res.json({success: true, message: 'Appointment Cancelled' })
         
@@ -215,4 +216,42 @@ const cancelAppointment = async(req, res) => {
     }
 }
 
-export {registerUser, loginUser, getProfile, updateProfile, bookAppointment, listAppointment, cancelAppointment}
+// API to make payment of appointment using paystack
+
+// Paystack Secret Key
+const PAYSTACK_SECRET_KEY = 'sk_test_a4387644be6f7879618d327fd1ec1c7695bf2fe0';
+
+const Payment = async (req, res) => {
+    const { reference } = req.body;
+
+    if (!reference) {
+        return res.status(400).json({ success: false, message: "Payment reference is required" });
+    }
+
+    try {
+         // Make a request to Paystack to verify the transaction
+         const response = await axios.get(`https://api.paystack.co/transaction/verify/${reference}`, {
+            headers: {
+                Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`,
+            },
+        });
+
+        const data = response.data;
+
+        if (data.status && data.data.status === "success") {
+            // Payment was successful
+            return res.status(200).json({ success: true, message: "Payment verified", data: data.data });
+        } else {
+            // Payment failed or was not successful
+            return res.status(400).json({ success: false, message: "Payment verification failed", data: data.data });
+        }
+            
+    } catch (error) {
+        
+        console.error("Error verifying payment:", error);
+            return res.status(500).json({ success: false, message: "An error occurred while verifying payment" });
+    }
+}
+
+
+export {registerUser, loginUser, getProfile, updateProfile, bookAppointment, listAppointment, cancelAppointment, Payment}
